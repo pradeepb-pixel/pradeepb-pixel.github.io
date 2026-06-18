@@ -550,20 +550,21 @@
       </div>
     </div>
     <div class="reveal">
-      <div class="contact-form">
+      <div class="contact-form" id="contact-form">
         <div class="form-group">
           <label>Name</label>
-          <input type="text" placeholder="Your name" />
+          <input type="text" id="from_name" placeholder="Your name" required />
         </div>
         <div class="form-group">
           <label>Email</label>
-          <input type="email" placeholder="your@email.com" />
+          <input type="email" id="from_email" placeholder="your@email.com" required />
         </div>
         <div class="form-group">
           <label>Message</label>
-          <textarea placeholder="What are you working on?"></textarea>
+          <textarea id="message" placeholder="What are you working on?" required></textarea>
         </div>
-        <button class="btn btn-primary" style="width:fit-content">Send Message</button>
+        <button class="btn btn-primary" id="send-btn" style="width:fit-content" onclick="sendEmail()">Send Message</button>
+        <div id="form-status" style="display:none; margin-top:1rem; padding:1rem; border-radius:8px; font-size:0.9rem;"></div>
       </div>
     </div>
   </div>
@@ -599,6 +600,72 @@
   }, { threshold: 0.1 });
   document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 </script>
+<!-- EmailJS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script>
+  // ── EMAILJS SETUP ──
+  // Step 1: Sign up free at https://emailjs.com
+  // Step 2: Create a service (Gmail) and get your Service ID
+  // Step 3: Create an email template and get your Template ID
+  // Step 4: Get your Public Key from Account > API Keys
+  // Step 5: Replace the values below with your real IDs
+
+  emailjs.init("GfUT6G1DuvVPNvKS7");
+
+  function sendEmail() {
+    const name    = document.getElementById("from_name").value.trim();
+    const email   = document.getElementById("from_email").value.trim();
+    const message = document.getElementById("message").value.trim();
+    const btn     = document.getElementById("send-btn");
+    const status  = document.getElementById("form-status");
+
+    // Basic validation
+    if (!name || !email || !message) {
+      showStatus("Please fill in all fields.", "error");
+      return;
+    }
+
+    // Disable button while sending
+    btn.textContent = "Sending...";
+    btn.disabled = true;
+
+    const templateParams = {
+      from_name  : name,
+      from_email : email,
+      message    : message,
+      to_name    : "Pradeep B",
+    };
+
+    emailjs.send(
+      "service_180iugq",
+      "template_1ro8x6r",
+      templateParams
+    ).then(() => {
+      showStatus("Message sent! I will reply within 24 hours.", "success");
+      document.getElementById("from_name").value  = "";
+      document.getElementById("from_email").value = "";
+      document.getElementById("message").value    = "";
+      btn.textContent = "Send Message";
+      btn.disabled = false;
+    }).catch((error) => {
+      showStatus("Something went wrong. Please email me directly at pradeepb4646@gmail.com", "error");
+      btn.textContent = "Send Message";
+      btn.disabled = false;
+    });
+  }
+
+  function showStatus(msg, type) {
+    const status = document.getElementById("form-status");
+    status.style.display = "block";
+    status.textContent = msg;
+    status.style.background = type === "success"
+      ? "rgba(34,197,94,0.1)"
+      : "rgba(239,68,68,0.1)";
+    status.style.border = type === "success"
+      ? "1px solid rgba(34,197,94,0.3)"
+      : "1px solid rgba(239,68,68,0.3)";
+    status.style.color = type === "success" ? "#22C55E" : "#EF4444";
+  }
+</script>
 </body>
 </html>
-
